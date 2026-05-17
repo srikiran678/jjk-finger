@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JJK Finger Counter AI — Jujutsu Kaisen Fight Selector</title>
+    <meta name="description" content="AI-powered finger counter that uses your webcam to detect fingers and play Jujutsu Kaisen fight scenes based on odd/even count.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Animated background particles -->
+    <div class="bg-particles" id="particles"></div>
+
+    <!-- Loading screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-symbol">
+                <div class="curse-mark"></div>
+                <div class="curse-mark-ring"></div>
+                <div class="curse-mark-ring ring-2"></div>
+            </div>
+            <h2 class="loading-title">DOMAIN EXPANSION</h2>
+            <p class="loading-subtitle">Initializing Hand Landmarker AI...</p>
+            <div class="loading-bar">
+                <div class="loading-bar-fill" id="loadingBarFill"></div>
+            </div>
+            <p class="loading-status" id="loadingStatus">Loading MediaPipe Vision...</p>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app-container" id="appContainer" style="display:none;">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="logo-mark">
+                    <span class="logo-icon">👁️</span>
+                    <div class="logo-pulse"></div>
+                </div>
+                <div class="header-text">
+                    <h1 class="app-title">JJK FINGER COUNTER</h1>
+                    <p class="app-subtitle">Cursed Technique: Hand Recognition</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="status-badge" id="statusBadge">
+                    <span class="status-dot"></span>
+                    <span class="status-text">AI Active</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Camera Section -->
+            <section class="camera-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="title-icon">📸</span>
+                        Camera Feed
+                    </h2>
+                    <button class="toggle-camera-btn" id="toggleCameraBtn" title="Toggle Camera">
+                        <span class="cam-icon">🎥</span>
+                    </button>
+                </div>
+                <div class="camera-wrapper">
+                    <div class="camera-frame">
+                        <video id="webcam" autoplay playsinline></video>
+                        <canvas id="outputCanvas"></canvas>
+                        <div class="camera-overlay">
+                            <div class="scan-line"></div>
+                            <div class="corner-mark top-left"></div>
+                            <div class="corner-mark top-right"></div>
+                            <div class="corner-mark bottom-left"></div>
+                            <div class="corner-mark bottom-right"></div>
+                        </div>
+                        <!-- No hand detected message -->
+                        <div class="no-hand-msg" id="noHandMsg">
+                            <span class="hand-emoji">✋</span>
+                            <p>Show your hand to the camera</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Section -->
+            <section class="stats-section">
+                <!-- Finger Count Display -->
+                <div class="finger-count-card">
+                    <div class="count-display">
+                        <div class="count-ring" id="countRing">
+                            <span class="count-number" id="fingerCount">0</span>
+                        </div>
+                    </div>
+                    <div class="count-label">FINGERS DETECTED</div>
+                    <div class="parity-badge" id="parityBadge">
+                        <span class="parity-icon" id="parityIcon">—</span>
+                        <span class="parity-text" id="parityText">Waiting...</span>
+                    </div>
+                </div>
+
+                <!-- Hand Info Cards -->
+                <div class="info-cards">
+                    <div class="info-card">
+                        <div class="info-icon">🤚</div>
+                        <div class="info-label">Hands</div>
+                        <div class="info-value" id="handCount">0</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">⚡</div>
+                        <div class="info-label">Mode</div>
+                        <div class="info-value mode-value" id="modeDisplay">—</div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">🎯</div>
+                        <div class="info-label">Confidence</div>
+                        <div class="info-value" id="confidenceDisplay">—</div>
+                    </div>
+                </div>
+
+                <!-- Current Mode Indicator -->
+                <div class="mode-indicator" id="modeIndicator">
+                    <div class="mode-banner" id="modeBanner">
+                        <div class="mode-icon-large" id="modeIconLarge">⏳</div>
+                        <div class="mode-info">
+                            <span class="mode-title" id="modeTitle">Show Your Hand</span>
+                            <span class="mode-desc" id="modeDesc">Raise fingers to select a fight scene</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Video Section -->
+            <section class="video-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="title-icon">🎬</span>
+                        <span id="videoSectionTitle">Fight Scene</span>
+                    </h2>
+                    <div class="video-nav" id="videoNav" style="display:none;">
+                        <button class="nav-btn" id="prevVideoBtn" title="Previous Video">◀</button>
+                        <span class="nav-counter" id="videoCounter">1/3</span>
+                        <button class="nav-btn" id="nextVideoBtn" title="Next Video">▶</button>
+                    </div>
+                </div>
+                <div class="video-wrapper">
+                    <div class="video-frame" id="videoFrame">
+                        <!-- Default state -->
+                        <div class="video-placeholder" id="videoPlaceholder">
+                            <div class="placeholder-anim">
+                                <div class="placeholder-circle"></div>
+                                <div class="placeholder-ring"></div>
+                            </div>
+                            <h3>Awaiting Cursed Energy...</h3>
+                            <p>Show an <strong>odd</strong> number for <span class="gojo-text">Gojo — Infinite Void</span></p>
+                            <p>Show an <strong>even</strong> number for <span class="sukuna-text">Sukuna — Malevolent Shrine</span></p>
+                            <p>Show <strong>7 fingers</strong> for <span class="megumi-text">Megumi — Summon Mahoraga</span></p>
+                        </div>
+                        <!-- YouTube Player -->
+                        <div class="youtube-container" id="youtubeContainer" style="display:none;">
+                            <iframe id="youtubePlayer" 
+                                    src="" 
+                                    frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                    allowfullscreen>
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
+                <!-- Video Info Bar -->
+                <div class="video-info-bar" id="videoInfoBar" style="display:none;">
+                    <div class="video-info-content">
+                        <span class="video-info-icon" id="videoInfoIcon">⚔️</span>
+                        <span class="video-info-text" id="videoInfoText">Now Playing</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Powered by <strong>MediaPipe AI</strong> • Jujutsu Kaisen © Gege Akutami</p>
+        </footer>
+    </div>
+
+    <!-- ═══ FULLSCREEN DOMAIN EXPANSION OVERLAY ═══ -->
+    <div class="domain-overlay" id="domainOverlay">
+        <div class="domain-bg" id="domainBg"></div>
+        <div class="domain-flash" id="domainFlash"></div>
+        <div class="domain-content">
+            <div class="domain-kanji" id="domainKanji">領域展開</div>
+            <div class="domain-name" id="domainName">INFINITE VOID</div>
+            <div class="domain-subtitle" id="domainSubtitle">Gojo Satoru</div>
+        </div>
+        <div class="domain-particles" id="domainParticles"></div>
+    </div>
+
+    <!-- ═══ FULLSCREEN VIDEO THEATER ═══ -->
+    <div class="theater-mode" id="theaterMode">
+        <div class="theater-video">
+            <iframe id="theaterPlayer" 
+                    src="" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" 
+                    allowfullscreen>
+            </iframe>
+        </div>
+
+        <!-- Floating Mini Camera -->
+        <div class="theater-mini-cam" id="theaterMiniCam">
+            <video id="miniWebcam" autoplay playsinline muted></video>
+            <canvas id="miniCanvas"></canvas>
+            <div class="mini-cam-stats">
+                <span class="mini-finger-count" id="miniFingerCount">0</span>
+                <span class="mini-mode" id="miniMode">—</span>
+            </div>
+            <button class="mini-cam-toggle" id="miniCamToggle" title="Hide/Show Camera">👁️</button>
+        </div>
+
+        <!-- Theater Controls -->
+        <div class="theater-controls" id="theaterControls">
+            <button class="theater-exit-btn" id="theaterExitBtn" title="Exit Fullscreen">
+                <span>✕</span> Exit Domain
+            </button>
+            <div class="theater-info">
+                <span class="theater-mode-icon" id="theaterModeIcon">💠</span>
+                <span class="theater-mode-name" id="theaterModeName">INFINITE VOID</span>
+            </div>
+            <div class="theater-nav">
+                <button class="theater-nav-btn" id="theaterPrevBtn" title="Previous">◀ Prev</button>
+                <span class="theater-nav-counter" id="theaterNavCounter">1/3</span>
+                <button class="theater-nav-btn" id="theaterNextBtn" title="Next">Next ▶</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ SOUND ENABLE PROMPT ═══ -->
+    <div class="sound-prompt" id="soundPrompt">
+        <div class="sound-prompt-card">
+            <div class="sound-prompt-icon">🔊</div>
+            <h3>Enable Immersive Sound?</h3>
+            <p>Domain Expansion sound effects & original anime audio</p>
+            <div class="sound-prompt-btns">
+                <button class="sound-btn sound-btn-yes" id="soundYes">🔊 Enable Sound</button>
+                <button class="sound-btn sound-btn-no" id="soundNo">🔇 No Sound</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
