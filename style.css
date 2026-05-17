@@ -637,8 +637,8 @@ body {
 }
 .sound-btn-no:hover { border-color: rgba(255,255,255,0.4); color: var(--text-primary); }
 
-/* ============ RESPONSIVE ============ */
-@media (max-width: 1100px) {
+/* ============ RESPONSIVE & MOBILE ============ */
+@media (max-width: 1200px) {
     .main-content {
         grid-template-columns: 1fr 1fr;
         grid-template-rows: auto auto;
@@ -647,15 +647,58 @@ body {
     .video-section { grid-column: 2; grid-row: 1; }
     .stats-section { grid-column: 1 / -1; grid-row: 2; }
     .info-cards { flex-direction: row; }
-    .finger-count-card { display: flex; align-items: center; gap: 1.5rem; padding: 1rem 2rem; }
+    .finger-count-card { display: flex; align-items: center; gap: 1.5rem; padding: 1rem 2rem; justify-content: center; }
     .count-display { margin-bottom: 0; }
     .mode-indicator { margin-top: 0; }
 }
-@media (max-width: 700px) {
+
+@media (max-width: 850px) {
     .main-content { grid-template-columns: 1fr; }
     .camera-section, .stats-section, .video-section { grid-column: 1; }
     .app-header { flex-direction: column; gap: 0.75rem; text-align: center; }
     .info-cards { flex-direction: column; }
-    .finger-count-card { flex-direction: column; }
+    .finger-count-card { flex-direction: column; gap: 1rem; }
+    .app-title { font-size: 1.1rem; }
+    
+    /* Theater Mode Adjustments for Tablet/Mobile */
+    .theater-mini-cam {
+        width: 120px; height: 90px;
+        bottom: 70px; right: 16px;
+    }
+    .theater-controls { padding: 8px 12px; flex-wrap: wrap; justify-content: center; gap: 10px; }
+    .theater-info { width: 100%; justify-content: center; order: -1; margin-bottom: 4px; }
+}
+
+@media (max-width: 500px) {
+    .app-container { padding: 0.5rem; }
+    .app-header { padding: 1rem; }
+    .section-header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+    
+    /* Loading Screen */
+    .loading-symbol { width: 80px; height: 80px; }
+    .loading-title { font-size: 1.2rem; }
+    .loading-bar { width: 90%; }
+    
+    /* Sound Prompt */
+    .sound-prompt-card { padding: 2rem 1.5rem; width: 90%; }
+    .sound-prompt-icon { font-size: 2.5rem; }
+    .sound-prompt-btns { flex-direction: column; width: 100%; }
+    .sound-btn { width: 100%; }
+    
+    /* Domain Expansion Overlay */
+    .domain-kanji { font-size: 3rem; letter-spacing: 6px; }
+    .domain-name { font-size: 1.8rem; letter-spacing: 4px; }
+    .domain-subtitle { font-size: 0.9rem; }
+    
+    /* Theater Adjustments */
+    .theater-exit-btn { padding: 6px 12px; font-size: 0.65rem; }
+    .theater-nav-btn { padding: 6px 10px; font-size: 0.7rem; }
+    .theater-mode-name { font-size: 0.8rem; }
+    .mini-cam-stats { display: none; } /* Hide stats on mobile mini cam to save space */
+}
+
+@media (max-width: 380px) {
+    .domain-kanji { font-size: 2.5rem; }
+    .domain-name { font-size: 1.4rem; }
     .app-title { font-size: 1rem; }
 }
